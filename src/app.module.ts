@@ -23,7 +23,7 @@ import { LoggerModule } from './common/logger/logger.module';
     }),
     AuthModule,
     TransactionsModule,
-    LoggerModule
+    LoggerModule,
   ],
   providers: [
     {

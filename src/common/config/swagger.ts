@@ -4,7 +4,7 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export const setupSwagger = (app: INestApplication): void => {
   const configService = app.get(ConfigService);
-  const nodeEnv = configService.get('nodeEnv');
+  const nodeEnv = configService.get<string>('nodeEnv');
 
   const config = new DocumentBuilder()
     .setTitle('RedCat Billing API')

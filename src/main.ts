@@ -1,8 +1,8 @@
 import { NestFactory } from '@nestjs/core';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { setupSwagger } from './common/config/swagger';
-import { Logger, ValidationPipe } from '@nestjs/common';
-import cookieParser = require('cookie-parser');
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -20,7 +20,7 @@ async function bootstrap() {
     }),
   );
 
-  await setupSwagger(app);
+  setupSwagger(app);
 
   const port = process.env.PORT || 7000;
   await app.listen(port);
@@ -28,4 +28,4 @@ async function bootstrap() {
     `🚀 Application is running on: http://localhost:${port}/${globalPrefix}`,
   );
 }
-bootstrap();
+void bootstrap();

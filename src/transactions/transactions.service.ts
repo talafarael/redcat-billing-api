@@ -17,7 +17,7 @@ import { CreateTransferDto } from './dto/request/create-transfer.dto';
 import { PaginatedTransactionsResponseDto } from './dto/response/paginated-transactions.dto';
 import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
 import { buildPaginatedResponse } from '@/common/pagination/dto/response/paginated-response.util';
-import { TransactionWebhook } from './webhooks/tranasction.webhook';
+import { TransactionWebhook } from './webhooks/transaction.webhook';
 
 @Injectable()
 export class TransactionsService {
@@ -26,7 +26,7 @@ export class TransactionsService {
     private readonly transactionRepository: TransactionRepository,
     private readonly usersService: UsersService,
     private readonly transactionWebhook: TransactionWebhook,
-  ) { }
+  ) {}
 
   async createDeposit(dto: CreateDepositDto): Promise<Transaction> {
     await this.usersService.findByIdOrFail(dto.toUserId);
@@ -37,7 +37,6 @@ export class TransactionsService {
       return this.transactionRepository.createDeposit(
         {
           ...dto,
-          amount: dto.amount,
           toUser: { id: dto.toUserId },
         },
         manager,
@@ -127,10 +126,7 @@ export class TransactionsService {
       return this.transactionRepository.saveTransaction(transaction, manager);
     });
 
-    void this.transactionWebhook.notify(
-      cancelled.id,
-      'transaction.cancelled',
-    );
+    void this.transactionWebhook.notify(cancelled.id, 'transaction.cancelled');
 
     return cancelled;
   }
@@ -185,7 +181,7 @@ export class TransactionsService {
     transaction: Transaction,
     requesterId: string,
     requesterRole: Role,
-  ) {
+  ): void {
     if (requesterRole === Role.ADMIN) return;
 
     const isOwner =

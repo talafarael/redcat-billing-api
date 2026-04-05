@@ -84,17 +84,6 @@ export class UsersService {
     return user;
   }
 
-  async getUser(id: string): Promise<User> {
-    const user = await this.userRepository.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    if (!user.isActive) {
-      throw new ForbiddenException('Recipient account is deactivated');
-    }
-    return user;
-  }
-
   async getUsers(
     query: PaginationQueryDto,
   ): Promise<PaginatedUsersResponseDto> {

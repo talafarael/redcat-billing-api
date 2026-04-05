@@ -6,6 +6,7 @@ import { Strategy } from 'passport-jwt';
 import { JwtPayload } from '@/auth/interfaces/jwt-payload.interface';
 import { UsersService } from '@/users/users.service';
 import { User } from '@/users/entities/user.entity';
+import { COOKIE } from '@/common/config/cookies';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
@@ -14,7 +15,10 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     private readonly userService: UsersService,
   ) {
     super({
-      jwtFromRequest: (req: Request) => req?.cookies?.access_token ?? null,
+      jwtFromRequest: (req: Request): string | null => {
+        const cookies = req?.cookies as Record<string, string> | undefined;
+        return cookies?.[COOKIE.ACCESS] ?? null;
+      },
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('jwt.accessSecret')!,
     });
