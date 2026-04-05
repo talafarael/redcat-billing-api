@@ -11,7 +11,8 @@ import {
 export class CreateTransferDto {
   @ApiProperty({
     example: 50,
-    description: 'Amount to transfer (positive integer)',
+    description:
+      'Amount to transfer in minor currency units (positive integer, e.g. cents).',
   })
   @IsNumber()
   @IsInt()

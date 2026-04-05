@@ -12,11 +12,15 @@ NestJS REST API for user authentication, role-based access control, and single-c
 
 [Database ERD (draw.io)](https://drive.google.com/file/d/1vWT6qKhA0_rJL8e2mIXl6CQ8vrqmsN-v/view?usp=sharing)
 
+## Money and balances
+
+`balance` on users and `amount` on transactions are **integers in the smallest currency unit** (minor units), e.g. cents for a USD-style currency. Values are not fractional; there is no separate currency field—the API models a single logical currency.
+
 ## Prerequisites
 
 - Node.js 22+ and npm
 - PostgreSQL 15 (local install or Docker)
-- Docker and Docker Compose (optional, for containerized workflows)
+- Docker and Docker Compose (optional). `package.json` helpers call `docker compose` without `sudo`; grant Docker access to your user (e.g. `docker` group or rootless Docker) if needed.
 
 ## Environment variables
 

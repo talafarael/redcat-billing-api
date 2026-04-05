@@ -7,7 +7,11 @@ export class TransactionResponseDto {
   @ApiProperty({ example: 'uuid' })
   id: string;
 
-  @ApiProperty({ example: 100 })
+  @ApiProperty({
+    example: 100,
+    description:
+      'Transaction amount in minor currency units (e.g. cents for USD-style currencies).',
+  })
   amount: number;
 
   @ApiProperty({ enum: TypeTransaction, example: TypeTransaction.DEPOSIT })

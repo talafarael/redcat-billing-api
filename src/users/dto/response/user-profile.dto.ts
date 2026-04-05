@@ -11,7 +11,11 @@ export class UserProfileResponseDto {
   @ApiProperty({ enum: Role, example: Role.CLIENT })
   role: Role;
 
-  @ApiProperty({ example: 0 })
+  @ApiProperty({
+    example: 0,
+    description:
+      'Account balance in minor currency units (smallest unit, e.g. cents for USD-style currencies).',
+  })
   balance: number;
 
   @ApiProperty({ example: true })

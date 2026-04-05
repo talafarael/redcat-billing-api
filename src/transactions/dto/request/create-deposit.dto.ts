@@ -11,7 +11,8 @@ import {
 export class CreateDepositDto {
   @ApiProperty({
     example: 100,
-    description: 'Amount to deposit (positive integer)',
+    description:
+      'Amount to deposit in minor currency units (positive integer, e.g. cents).',
   })
   @IsNumber()
   @IsInt()
