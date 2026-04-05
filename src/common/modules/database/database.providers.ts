@@ -2,6 +2,8 @@ import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
+import { runDevSeedIfNeeded } from './run-dev-seed';
+
 const projectRoot = process.cwd();
 
 export const databaseProviders = [
@@ -22,7 +24,12 @@ export const databaseProviders = [
         synchronize: false,
       });
 
-      return dataSource.initialize();
+      await dataSource.initialize();
+      await runDevSeedIfNeeded(
+        dataSource,
+        configService.get<string>('nodeEnv'),
+      );
+      return dataSource;
     },
   },
 ];

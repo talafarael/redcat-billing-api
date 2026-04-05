@@ -11,8 +11,8 @@ export default class TransactionSeeder implements Seeder {
     const userRepo = dataSource.getRepository(User);
 
     const count = await transactionRepo.count();
-    if (count > 0) return;
 
+    if (count > 0) return;
     const [alice, bob, carol] = await Promise.all([
       userRepo.findOne({ where: { email: 'alice@example.com' } }),
       userRepo.findOne({ where: { email: 'bob@example.com' } }),
@@ -69,6 +69,8 @@ export default class TransactionSeeder implements Seeder {
       },
     ];
 
-    await transactionRepo.save(transactionRepo.create(transactions as Transaction[]));
+    await transactionRepo.save(
+      transactionRepo.create(transactions as Transaction[]),
+    );
   }
 }

@@ -60,13 +60,17 @@ Migrations run automatically when the application boots (see `DatabaseModule`). 
 npm run migration:run
 ```
 
-### 4. (Optional) Seed demo data
+When `NODE_ENV=development`, demo data is **seeded automatically** on startup right after migrations (`MainSeeder` via `run-dev-seed.ts`). In `production` and `test`, seeds are not run at boot.
 
-Seeds create a default admin user and sample clients (see `database/seeds/user.seed.ts`):
+### 4. Seed demo data (manual)
+
+Use this if you need to re-run seeds without restarting the app, or when `NODE_ENV` is not `development`:
 
 ```bash
 npm run seed:run
 ```
+
+Seeds create a default admin user and sample clients (see `database/seeds/user.seed.ts`).
 
 ### 5. Start the API
 
@@ -102,7 +106,7 @@ Uses `Dockerfile.dev`, hot reload, and bind-mounts the project.
 docker compose -f docker-compose.yml.dev --env-file .env up -d --build
 ```
 
-Run seeds inside the app container:
+With `NODE_ENV=development` in `.env`, seeds run automatically when the app starts (same as local `npm run start:dev`). To run seeds manually inside the container:
 
 ```bash
 docker compose -f docker-compose.yml.dev --env-file .env exec app npm run seed:run
