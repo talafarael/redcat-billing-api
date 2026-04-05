@@ -8,7 +8,7 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import type { Request, Response } from 'express';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/request/login.dto';
 import { RegisterDto } from './dto/request/register.dto';
@@ -17,6 +17,7 @@ import { JwtRefreshGuard } from './guards/jwt-refresh.guard';
 import { LocalAuthGuard } from './guards/local-auth.guard';
 import { User } from '@/users/entities/user.entity';
 import { CurrentUser } from './decorators/current-user.decorator';
+import type { JwtRefreshRequest } from './interfaces/jwt-refresh-user.interface';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -73,13 +74,10 @@ export class AuthController {
   })
   @ApiForbiddenResponse({ description: 'Invalid or expired refresh session' })
   refresh(
-    @Req() req: Request,
+    @Req() req: JwtRefreshRequest,
     @Res({ passthrough: true }) res: Response,
   ): Promise<void> {
-    const { id, refreshToken } = req.user as {
-      id: string;
-      refreshToken: string;
-    };
+    const { id, refreshToken } = req.user;
     return this.authService.refreshTokens(id, refreshToken, res);
   }
 }

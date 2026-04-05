@@ -7,7 +7,6 @@ import {
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { EntityManager } from 'typeorm';
-import { UserProfileResponseDto } from './dto/response/user-profile.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import { AuthCookieService } from '@/auth/auth-cookie.service';
@@ -74,25 +73,6 @@ export class UsersService {
       password: hashedPassword,
     });
     return this.userRepository.save(user);
-  }
-
-  async getProfile(id: string): Promise<UserProfileResponseDto> {
-    const user = await this.userRepository.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    return user;
-  }
-
-  async getUser(id: string): Promise<User> {
-    const user = await this.userRepository.findById(id);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-    if (!user.isActive) {
-      throw new ForbiddenException('Recipient account is deactivated');
-    }
-    return user;
   }
 
   async getUsers(

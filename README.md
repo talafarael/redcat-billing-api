@@ -1,98 +1,167 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# RedCat Billing API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+NestJS REST API for user authentication, role-based access control, and single-currency billing (deposits, transfers, cancellations). Transaction events can be forwarded to an optional HTTP webhook.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Stack
 
-## Description
+- **Runtime:** Node.js 22+, NestJS 11
+- **Database:** PostgreSQL 15
+- **ORM:** TypeORM (migrations enabled; `synchronize` is off)
+- **Auth:** JWT access + refresh tokens, delivered via HTTP-only cookies
+- **Docs:** Swagger (OpenAPI), enabled in **development** only
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Prerequisites
 
-## Project setup
+- Node.js 22+ and npm
+- PostgreSQL 15 (local install or Docker)
+- Docker and Docker Compose (optional, for containerized workflows)
 
-```bash
-$ npm install
-```
+## Environment variables
 
-## Compile and run the project
+| Variable | Description |
+|----------|-------------|
+| `NODE_ENV` | `development`, `production`, or `test` |
+| `PORT` | HTTP port (default `7000`) |
+| `DB_HOST`, `DB_PORT`, `DB_USERNAME`, `DB_PASSWORD`, `DB_NAME` | PostgreSQL connection |
+| `JWT_ACCESS_SECRET`, `JWT_REFRESH_SECRET` | Secrets used to sign JWTs |
+| `JWT_ACCESS_EXPIRES_IN`, `JWT_REFRESH_EXPIRES_IN` | Token TTLs (e.g. `15m`, `7d`) |
+| `WEBHOOK_URL` | Optional. If set, transaction payloads are POSTed here |
 
-```bash
-# development
-$ npm run start
+Copy the appropriate example file and adjust values:
 
-# watch mode
-$ npm run start:dev
+- **Local / dev:** `.env.dev.example` → `.env` (or reuse your existing `.env`)
+- **Production compose:** `.env.prod.example` → `.env.prod`
 
-# production mode
-$ npm run start:prod
-```
+Never commit real secrets.
 
-## Run tests
+## Local development
+
+### 1. Install dependencies
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+npm install
 ```
 
-## Deployment
+### 2. Start PostgreSQL
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+Using Docker (database only):
 
 ```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+docker compose -f docker-compose.db.yml --env-file .env up -d
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+Ensure `DB_*` in your `.env` match the compose file (see `.env.db.example` if present).
 
-## Resources
+### 3. Run migrations
 
-Check out a few resources that may come in handy when working with NestJS:
+Migrations run automatically when the application boots (see `DatabaseModule`). You can also run them manually:
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```bash
+npm run migration:run
+```
 
-## Support
+### 4. (Optional) Seed demo data
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Seeds create a default admin user and sample clients (see `database/seeds/user.seed.ts`):
 
-## Stay in touch
+```bash
+npm run seed:run
+```
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+### 5. Start the API
+
+```bash
+npm run start:dev
+```
+
+The API listens at `http://localhost:<PORT>/api` (default port `7000`).
+
+### Swagger
+
+When `NODE_ENV=development`, Swagger UI is served at:
+
+`http://localhost:<PORT>/api`
+
+Cookie-based auth is documented there (`access_token`). Use a browser or a client that stores cookies after `POST /api/auth/login` or `POST /api/auth/register`.
+
+### Useful scripts
+
+| Script | Purpose |
+|--------|---------|
+| `npm run build` | Compile TypeScript to `dist/` |
+| `npm run start:prod` | Run compiled app (`node dist/src/main.js`) |
+| `npm run migration:run` / `migration:revert` / `migration:show` | TypeORM CLI |
+| `npm run seed:run` | Run database seeders |
+| `npm run test` / `test:e2e` / `test:cov` | Tests |
+
+## Docker: development (app + Postgres)
+
+Uses `Dockerfile.dev`, hot reload, and bind-mounts the project.
+
+```bash
+docker compose -f docker-compose.yml.dev --env-file .env up -d --build
+```
+
+Run seeds inside the app container:
+
+```bash
+docker compose -f docker-compose.yml.dev --env-file .env exec app npm run seed:run
+```
+
+See `package.json` for `docker:dev:*` helper scripts.
+
+## Docker: production
+
+Multi-stage image: `Dockerfile`. Compose file: `docker-compose.prod.yml`.
+
+1. Copy `.env.prod.example` to `.env.prod` and set strong `DB_PASSWORD`, `JWT_*` secrets, and optional `WEBHOOK_URL`.
+2. Build and start:
+
+```bash
+docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build
+```
+
+Or use npm helpers (same compose file and `.env.prod`):
+
+| Command | |
+|--------|---|
+| `npm run docker:prod:up` | Build and start in the background |
+| `npm run docker:prod:down` | Stop containers |
+| `npm run docker:prod:down:clean` | Stop and remove volumes |
+| `npm run docker:prod:logs` / `docker:prod:logs:app` | Follow logs |
+| `npm run docker:prod:build` | Build images |
+| `npm run docker:prod:restart` | Restart the app service |
+| `npm run docker:prod:shell` | Shell inside the app container |
+| `npm run docker:prod:seed` | Run database seeds in the app container |
+| `npm run docker:prod:migration:run` / `docker:prod:migration:show` | Migrations |
+
+The API is exposed on host port `PORT` from `.env.prod` (default `7000` mapped to container `7000`).
+
+**Swagger in production:** Swagger UI is **disabled** when `NODE_ENV=production`. To browse OpenAPI during development, run locally or with `NODE_ENV=development`.
+
+## API overview
+
+Global prefix: **`/api`**.
+
+| Area | Highlights |
+|------|------------|
+| **Auth** | `POST /api/auth/register`, `POST /api/auth/login`, `POST /api/auth/logout`, `POST /api/auth/refresh` |
+| **Users** | `GET /api/users/me`, `PATCH /api/users/me/deactivate`, admin: list/block users |
+| **Transactions** | Deposits, transfers, list (paginated), cancel; admin can list/cancel any transaction |
+
+JWT cookies: `access_token`, `refresh_token` (see `src/common/config/cookies.ts`).
+
+## Roles
+
+- **Admin:** Manage users (read, block), read/cancel any transaction.
+- **Client:** Default role on registration. Own profile, deposits, transfers, own transaction list/cancel, self-deactivation.
+
+Roles are modeled as an enum on the user entity; there is no separate `roles` table.
+
+## Webhook
+
+If `WEBHOOK_URL` is configured, the service sends JSON payloads for transaction-related events (see `src/common/modules/webhook` and transaction webhook integration).
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+UNLICENSED (private project).

@@ -39,7 +39,18 @@
     "docker:dev:shell": "docker compose -f docker-compose.yml.dev --env-file .env exec app sh",
     "docker:dev:seed": "docker compose -f docker-compose.yml.dev --env-file .env exec app npm run seed:run",
     "docker:dev:migration:run": "docker compose -f docker-compose.yml.dev --env-file .env exec app npm run migration:run",
-    "docker:dev:migration:show": "docker compose -f docker-compose.yml.dev --env-file .env exec app npm run migration:show"
+    "docker:dev:migration:show": "docker compose -f docker-compose.yml.dev --env-file .env exec app npm run migration:show",
+    "docker:prod:up": "docker compose -f docker-compose.prod.yml --env-file .env.prod up -d --build",
+    "docker:prod:down": "docker compose -f docker-compose.prod.yml --env-file .env.prod down",
+    "docker:prod:down:clean": "docker compose -f docker-compose.prod.yml --env-file .env.prod down -v",
+    "docker:prod:logs": "docker compose -f docker-compose.prod.yml --env-file .env.prod logs -f",
+    "docker:prod:logs:app": "docker compose -f docker-compose.prod.yml --env-file .env.prod logs -f app",
+    "docker:prod:build": "docker compose -f docker-compose.prod.yml --env-file .env.prod build",
+    "docker:prod:restart": "docker compose -f docker-compose.prod.yml --env-file .env.prod restart app",
+    "docker:prod:shell": "docker compose -f docker-compose.prod.yml --env-file .env.prod exec app sh",
+    "docker:prod:seed": "docker compose -f docker-compose.prod.yml --env-file .env.prod exec app npm run seed:run",
+    "docker:prod:migration:run": "docker compose -f docker-compose.prod.yml --env-file .env.prod exec app npm run migration:run",
+    "docker:prod:migration:show": "docker compose -f docker-compose.prod.yml --env-file .env.prod exec app npm run migration:show"
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",

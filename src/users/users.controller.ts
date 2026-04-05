@@ -45,7 +45,7 @@ export class UsersController {
   @ApiOkResponse({ type: UserProfileResponseDto })
   @ApiUnauthorizedResponse({ description: 'Not authenticated' })
   getMe(@CurrentUser() user: User): Promise<UserProfileResponseDto> {
-    return this.usersService.getProfile(user.id);
+    return this.usersService.findByIdOrFail(user.id);
   }
 
   @Get()

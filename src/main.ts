@@ -20,7 +20,7 @@ async function bootstrap() {
     }),
   );
 
-  await setupSwagger(app);
+  setupSwagger(app);
 
   const port = process.env.PORT || 7000;
   await app.listen(port);

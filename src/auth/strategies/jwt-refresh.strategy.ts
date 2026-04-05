@@ -4,6 +4,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { Request } from 'express';
 import { Strategy } from 'passport-jwt';
 import { JwtPayload } from '@/auth/interfaces/jwt-payload.interface';
+import type { JwtRefreshUser } from '@/auth/interfaces/jwt-refresh-user.interface';
+import { COOKIE } from '@/common/config/cookies';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -12,15 +14,16 @@ export class JwtRefreshStrategy extends PassportStrategy(
 ) {
   constructor(configService: ConfigService) {
     super({
-      jwtFromRequest: (req: Request) => req?.cookies?.refresh_token ?? null,
+      jwtFromRequest: (req: Request) =>
+        req?.cookies?.[COOKIE.REFRESH] ?? null,
       ignoreExpiration: false,
       secretOrKey: configService.get<string>('jwt.refreshSecret')!,
       passReqToCallback: true,
     });
   }
 
-  validate(req: Request, payload: JwtPayload) {
-    const refreshToken = req.cookies?.refresh_token as string;
+  validate(req: Request, payload: JwtPayload): JwtRefreshUser {
+    const refreshToken = req.cookies?.[COOKIE.REFRESH] as string;
     return { id: payload.sub, email: payload.email, refreshToken };
   }
 }

@@ -17,7 +17,7 @@ export class TransactionWebhook {
     private readonly webhookService: WebhookService,
     private readonly transactionRepository: TransactionRepository,
     private readonly logger: AppLoggerService,
-  ) { }
+  ) {}
 
   async notify(
     transactionId: string,

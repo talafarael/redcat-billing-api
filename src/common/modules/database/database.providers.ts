@@ -2,7 +2,7 @@ import { join } from 'node:path';
 import { ConfigService } from '@nestjs/config';
 import { DataSource } from 'typeorm';
 
-const projectRoot = join(__dirname, '..', '..');
+const projectRoot = process.cwd();
 
 export const databaseProviders = [
   {
@@ -16,7 +16,7 @@ export const databaseProviders = [
         username: configService.get<string>('database.username'),
         password: configService.get<string>('database.password'),
         database: configService.get<string>('database.name'),
-        entities: [join(__dirname, '..', '**', '*.entity.js')],
+        entities: [join(projectRoot, 'dist', 'src', '**', '*.entity.js')],
         migrations: [join(projectRoot, 'database', 'migrations', '*.{ts,js}')],
         migrationsRun: true,
         synchronize: false,
