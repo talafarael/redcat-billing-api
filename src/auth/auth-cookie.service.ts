@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Response } from 'express';
 import { TokensDto } from './dto/response/tokens.dto';
-import { COOKIE } from '@/config/cookies';
+import { COOKIE } from '@/common/config/cookies';
 
 @Injectable()
 export class AuthCookieService {

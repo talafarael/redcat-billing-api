@@ -31,7 +31,7 @@ import { User } from './entities/user.entity';
 import { UsersService } from './users.service';
 import { UserProfileResponseDto } from './dto/response/user-profile.dto';
 import { PaginatedUsersResponseDto } from './dto/response/paginated-users.dto';
-import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
 
 @ApiTags('users')
 @ApiCookieAuth()

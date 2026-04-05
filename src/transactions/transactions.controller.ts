@@ -34,7 +34,7 @@ import { CreateDepositDto } from './dto/request/create-deposit.dto';
 import { CreateTransferDto } from './dto/request/create-transfer.dto';
 import { TransactionResponseDto } from './dto/response/transaction.dto';
 import { PaginatedTransactionsResponseDto } from './dto/response/paginated-transactions.dto';
-import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
 
 @ApiTags('transactions')
 @ApiCookieAuth()

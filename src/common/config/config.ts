@@ -14,4 +14,7 @@ export default () => ({
     password: process.env.DB_PASSWORD,
     name: process.env.DB_NAME,
   },
+  webhook: {
+    url: (process.env.WEBHOOK_URL ?? '').trim(),
+  },
 });

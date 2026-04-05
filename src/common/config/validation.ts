@@ -2,7 +2,6 @@ import { plainToInstance, Type } from 'class-transformer';
 import {
   IsEnum,
   IsNotEmpty,
-  IsNumber,
   IsOptional,
   IsString,
   ValidateNested,
@@ -54,6 +53,12 @@ class JwtConfig {
   refreshExpiresIn: string;
 }
 
+class WebhookConfig {
+  @IsOptional()
+  @IsString()
+  url?: string;
+}
+
 class EnvironmentVariables {
   @IsEnum(Environment)
   NODE_ENV: Environment;
@@ -68,6 +73,11 @@ class EnvironmentVariables {
   @ValidateNested()
   @Type(() => DatabaseConfig)
   database: DatabaseConfig;
+
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => WebhookConfig)
+  webhook?: WebhookConfig;
 }
 export const validate = (config: Record<string, unknown>) => {
   const validatedConfig = plainToInstance(EnvironmentVariables, config, {

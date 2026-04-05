@@ -1,0 +1,45 @@
+name: redcat-billing-dev
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: redcat-billing-db-dev
+    restart: unless-stopped
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    environment:
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USERNAME} -d ${DB_NAME}']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    container_name: redcat-billing-api-dev
+    restart: unless-stopped
+    ports:
+      - '${PORT:-7000}:7000'
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      DB_PORT: '5432'
+      CHOKIDAR_USEPOLLING: 'true'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - node_modules_dev:/app/node_modules
+
+volumes:
+  postgres_data_dev:
+  node_modules_dev:

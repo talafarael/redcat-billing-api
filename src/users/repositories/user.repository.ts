@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { DataSource, EntityManager, Repository } from 'typeorm';
 import { User } from '@/users/entities/user.entity';
-import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
 
 @Injectable()
 export class UserRepository extends Repository<User> {

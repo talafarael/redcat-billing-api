@@ -15,8 +15,9 @@ import { TypeTransaction } from './enums/type-transaction.enum';
 import { CreateDepositDto } from './dto/request/create-deposit.dto';
 import { CreateTransferDto } from './dto/request/create-transfer.dto';
 import { PaginatedTransactionsResponseDto } from './dto/response/paginated-transactions.dto';
-import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
-import { buildPaginatedResponse } from '@/common/utils/paginated-response';
+import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
+import { buildPaginatedResponse } from '@/common/pagination/dto/response/paginated-response.util';
+import { TransactionWebhook } from './webhooks/tranasction.webhook';
 
 @Injectable()
 export class TransactionsService {
@@ -24,12 +25,13 @@ export class TransactionsService {
     private readonly dataSource: DataSource,
     private readonly transactionRepository: TransactionRepository,
     private readonly usersService: UsersService,
+    private readonly transactionWebhook: TransactionWebhook,
   ) { }
 
   async createDeposit(dto: CreateDepositDto): Promise<Transaction> {
     await this.usersService.findByIdOrFail(dto.toUserId);
 
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
       await this.usersService.adjustBalance(dto.toUserId, dto.amount, manager);
 
       return this.transactionRepository.createDeposit(
@@ -41,6 +43,10 @@ export class TransactionsService {
         manager,
       );
     });
+
+    void this.transactionWebhook.notify(created.id, 'transaction.created');
+
+    return created;
   }
 
   async createTransfer(
@@ -56,7 +62,7 @@ export class TransactionsService {
       this.usersService.findByIdOrFail(dto.toUserId),
     ]);
 
-    return this.dataSource.transaction(async (manager) => {
+    const created = await this.dataSource.transaction(async (manager) => {
       await this.usersService.debitBalanceIfSufficient(
         fromUserId,
         dto.amount,
@@ -74,6 +80,10 @@ export class TransactionsService {
         manager,
       );
     });
+
+    void this.transactionWebhook.notify(created.id, 'transaction.created');
+
+    return created;
   }
 
   async getMyTransactions(
@@ -111,11 +121,18 @@ export class TransactionsService {
 
     this.checkPermissions(transaction, requesterId, requesterRole);
 
-    return this.dataSource.transaction(async (manager) => {
+    const cancelled = await this.dataSource.transaction(async (manager) => {
       await this.rollbackTransaction(transaction, manager);
       transaction.status = TransactionStatus.CANCELLED;
       return this.transactionRepository.saveTransaction(transaction, manager);
     });
+
+    void this.transactionWebhook.notify(
+      cancelled.id,
+      'transaction.cancelled',
+    );
+
+    return cancelled;
   }
 
   private async rollbackTransaction(

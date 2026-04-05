@@ -1,0 +1,12 @@
+node_modules
+dist
+coverage
+.git
+.gitignore
+postgres_data
+*.md
+.env
+.env.*
+!.env.example
+!.env.db.example
+!.env.dev.example

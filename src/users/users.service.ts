@@ -11,17 +11,17 @@ import { UserProfileResponseDto } from './dto/response/user-profile.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
 import { AuthCookieService } from '@/auth/auth-cookie.service';
-import { buildPaginatedResponse } from '@/common/utils/paginated-response';
+import { buildPaginatedResponse } from '@/common/pagination/dto/response/paginated-response.util';
 import { Response } from 'express';
 import { PaginatedUsersResponseDto } from './dto/response/paginated-users.dto';
-import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authCookieService: AuthCookieService,
-  ) { }
+  ) {}
 
   findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findByEmail(email);

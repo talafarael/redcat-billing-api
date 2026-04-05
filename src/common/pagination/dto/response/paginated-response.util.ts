@@ -1,5 +1,5 @@
-import { PaginationQueryDto } from '../dto/request/pagination-query.dto';
-import { PaginatedResponse } from '../interfaces/paginated-response';
+import { PaginationQueryDto } from '../request/pagination-query.dto';
+import { PaginatedResponse } from '../../interfaces/paginated-response.interface';
 
 export const buildPaginatedResponse = <T>(
   data: T[],

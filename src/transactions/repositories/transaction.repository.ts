@@ -5,7 +5,7 @@ import { TypeTransaction } from '@/transactions/enums/type-transaction.enum';
 import { TransactionStatus } from '@/transactions/enums/transaction-status.enum';
 import { CreateDepositRepositoryDto } from '@/transactions/dto/repository/create-deposit.dto';
 import { CreateTransferRepositoryDto } from '@/transactions/dto/repository/create-transfer.dto';
-import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/pagination/dto/request/pagination-query.dto';
 
 @Injectable()
 export class TransactionRepository extends Repository<Transaction> {
