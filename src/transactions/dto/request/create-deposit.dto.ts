@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
+  IsInt,
   IsNumber,
   IsOptional,
   IsPositive,
@@ -13,6 +14,7 @@ export class CreateDepositDto {
     description: 'Amount to deposit (positive integer)',
   })
   @IsNumber()
+  @IsInt()
   @IsPositive()
   amount: number;
 

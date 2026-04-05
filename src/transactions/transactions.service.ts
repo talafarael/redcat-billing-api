@@ -5,8 +5,9 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
-import { Role } from 'src/users/enums/role.enum';
+import { DataSource, EntityManager } from 'typeorm';
+import { UsersService } from '@/users/users.service';
+import { Role } from '@/users/enums/role.enum';
 import { TransactionRepository } from './repositories/transaction.repository';
 import { Transaction } from './entities/transaction.entity';
 import { TransactionStatus } from './enums/transaction-status.enum';
@@ -14,23 +15,31 @@ import { TypeTransaction } from './enums/type-transaction.enum';
 import { CreateDepositDto } from './dto/request/create-deposit.dto';
 import { CreateTransferDto } from './dto/request/create-transfer.dto';
 import { PaginatedTransactionsResponseDto } from './dto/response/paginated-transactions.dto';
-import { PaginationQueryDto } from 'src/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
+import { buildPaginatedResponse } from '@/common/utils/paginated-response';
 
 @Injectable()
 export class TransactionsService {
   constructor(
+    private readonly dataSource: DataSource,
     private readonly transactionRepository: TransactionRepository,
     private readonly usersService: UsersService,
-  ) {}
+  ) { }
 
   async createDeposit(dto: CreateDepositDto): Promise<Transaction> {
     await this.usersService.findByIdOrFail(dto.toUserId);
-    await this.usersService.adjustBalance(dto.toUserId, dto.amount);
 
-    return this.transactionRepository.createDeposit({
-      ...dto,
-      balance: dto.amount,
-      toUser: { id: dto.toUserId },
+    return this.dataSource.transaction(async (manager) => {
+      await this.usersService.adjustBalance(dto.toUserId, dto.amount, manager);
+
+      return this.transactionRepository.createDeposit(
+        {
+          ...dto,
+          amount: dto.amount,
+          toUser: { id: dto.toUserId },
+        },
+        manager,
+      );
     });
   }
 
@@ -42,23 +51,28 @@ export class TransactionsService {
       throw new BadRequestException('Cannot transfer funds to yourself');
     }
 
-    const [fromUser] = await Promise.all([
+    await Promise.all([
       this.usersService.findByIdOrFail(fromUserId),
       this.usersService.findByIdOrFail(dto.toUserId),
     ]);
 
-    if (fromUser.balance < dto.amount) {
-      throw new BadRequestException('Insufficient funds');
-    }
+    return this.dataSource.transaction(async (manager) => {
+      await this.usersService.debitBalanceIfSufficient(
+        fromUserId,
+        dto.amount,
+        manager,
+      );
+      await this.usersService.adjustBalance(dto.toUserId, dto.amount, manager);
 
-    await this.usersService.adjustBalance(fromUserId, -dto.amount);
-    await this.usersService.adjustBalance(dto.toUserId, dto.amount);
-
-    return this.transactionRepository.createTransfer({
-      balance: dto.amount,
-      fromUser: { id: fromUserId },
-      toUser: { id: dto.toUserId },
-      comment: dto.comment,
+      return this.transactionRepository.createTransfer(
+        {
+          amount: dto.amount,
+          fromUser: { id: fromUserId },
+          toUser: { id: dto.toUserId },
+          comment: dto.comment,
+        },
+        manager,
+      );
     });
   }
 
@@ -70,28 +84,14 @@ export class TransactionsService {
       userId,
       query,
     );
-    return this.buildPaginatedResponse(data, total, query);
+    return buildPaginatedResponse<Transaction>(data, total, query);
   }
 
   async getAllTransactions(
     query: PaginationQueryDto,
   ): Promise<PaginatedTransactionsResponseDto> {
     const [data, total] = await this.transactionRepository.findAll(query);
-    return this.buildPaginatedResponse(data, total, query);
-  }
-
-  private buildPaginatedResponse(
-    data: Transaction[],
-    total: number,
-    { page, limit }: PaginationQueryDto,
-  ): PaginatedTransactionsResponseDto {
-    return {
-      data: data,
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
-    };
+    return buildPaginatedResponse<Transaction>(data, total, query);
   }
 
   async cancelTransaction(
@@ -99,7 +99,8 @@ export class TransactionsService {
     requesterId: string,
     requesterRole: Role,
   ): Promise<Transaction> {
-    let transaction = await this.transactionRepository.findById(transactionId);
+    const transaction =
+      await this.transactionRepository.findById(transactionId);
 
     if (!transaction) {
       throw new NotFoundException('Transaction not found');
@@ -110,47 +111,57 @@ export class TransactionsService {
 
     this.checkPermissions(transaction, requesterId, requesterRole);
 
-    transaction = await this.rollbackTransaction(transaction);
-    transaction.status = TransactionStatus.CANCELLED;
-
-    return this.transactionRepository.save(transaction);
+    return this.dataSource.transaction(async (manager) => {
+      await this.rollbackTransaction(transaction, manager);
+      transaction.status = TransactionStatus.CANCELLED;
+      return this.transactionRepository.saveTransaction(transaction, manager);
+    });
   }
 
   private async rollbackTransaction(
     transaction: Transaction,
-  ): Promise<Transaction> {
+    manager: EntityManager,
+  ): Promise<void> {
     switch (transaction.type) {
       case TypeTransaction.DEPOSIT:
-        return this.cancelDeposit(transaction);
+        await this.cancelDeposit(transaction, manager);
+        return;
       case TypeTransaction.TRANSFER:
-        return this.cancelTransfer(transaction);
+        await this.cancelTransfer(transaction, manager);
+        return;
       default:
         throw new BadRequestException('Unsupported transaction type');
     }
   }
 
-  private async cancelDeposit(transaction: Transaction): Promise<Transaction> {
+  private async cancelDeposit(
+    transaction: Transaction,
+    manager: EntityManager,
+  ): Promise<void> {
     await this.usersService.adjustBalance(
       transaction.toUser.id,
-      -transaction.balance,
+      -transaction.amount,
+      manager,
     );
-    return transaction;
   }
 
-  private async cancelTransfer(transaction: Transaction): Promise<Transaction> {
+  private async cancelTransfer(
+    transaction: Transaction,
+    manager: EntityManager,
+  ): Promise<void> {
     if (!transaction.fromUser) {
       throw new BadRequestException('Transfer transaction must have a sender');
     }
     await this.usersService.adjustBalance(
       transaction.fromUser.id,
-      transaction.balance,
+      transaction.amount,
+      manager,
     );
     await this.usersService.adjustBalance(
       transaction.toUser.id,
-      -transaction.balance,
+      -transaction.amount,
+      manager,
     );
-    transaction.status = TransactionStatus.CANCELLED;
-    return transaction;
   }
 
   private checkPermissions(

@@ -1,8 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
-import { User } from 'src/users/entities/user.entity';
-import { Role } from 'src/users/enums/role.enum';
+import { User } from '@/users/entities/user.entity';
+import { Role } from '@/users/enums/role.enum';
 
 const USERS: Array<Partial<User> & { rawPassword: string }> = [
   {
@@ -15,28 +15,28 @@ const USERS: Array<Partial<User> & { rawPassword: string }> = [
   {
     email: 'alice@example.com',
     rawPassword: 'Password1!',
-    role: Role.ClIENT,
+    role: Role.CLIENT,
     balance: 5000,
     isActive: true,
   },
   {
     email: 'bob@example.com',
     rawPassword: 'Password1!',
-    role: Role.ClIENT,
+    role: Role.CLIENT,
     balance: 3000,
     isActive: true,
   },
   {
     email: 'carol@example.com',
     rawPassword: 'Password1!',
-    role: Role.ClIENT,
+    role: Role.CLIENT,
     balance: 1500,
     isActive: true,
   },
   {
     email: 'dave@example.com',
     rawPassword: 'Password1!',
-    role: Role.ClIENT,
+    role: Role.CLIENT,
     balance: 0,
     isActive: false,
   },

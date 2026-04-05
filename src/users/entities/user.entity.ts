@@ -6,9 +6,9 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { Role } from '../enums/role.enum';
+import { Role } from '@/users/enums/role.enum';
 import { Exclude } from 'class-transformer';
-import { Transaction } from 'src/transactions/entities/transaction.entity';
+import { Transaction } from '@/transactions/entities/transaction.entity';
 
 @Entity('users')
 export class User {
@@ -32,7 +32,7 @@ export class User {
   @OneToMany(() => Transaction, (transaction) => transaction.toUser)
   receivedTransactions: Transaction[];
 
-  @Column({ type: 'enum', enum: Role, default: Role.ClIENT })
+  @Column({ type: 'enum', enum: Role, default: Role.CLIENT })
   role: Role;
 
   @Column({ type: 'int', default: 0 })

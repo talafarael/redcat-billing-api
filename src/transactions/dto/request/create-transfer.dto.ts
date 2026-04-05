@@ -1,9 +1,20 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNumber, IsOptional, IsPositive, IsString, IsUUID } from 'class-validator';
+import {
+  IsInt,
+  IsNumber,
+  IsOptional,
+  IsPositive,
+  IsString,
+  IsUUID,
+} from 'class-validator';
 
 export class CreateTransferDto {
-  @ApiProperty({ example: 50, description: 'Amount to transfer (positive integer)' })
+  @ApiProperty({
+    example: 50,
+    description: 'Amount to transfer (positive integer)',
+  })
   @IsNumber()
+  @IsInt()
   @IsPositive()
   amount: number;
 

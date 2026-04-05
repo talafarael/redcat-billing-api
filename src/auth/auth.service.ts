@@ -8,8 +8,8 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import type { Response } from 'express';
 import type { StringValue } from 'ms';
-import { User } from '../users/entities/user.entity';
-import { UsersService } from '../users/users.service';
+import { User } from '@/users/entities/user.entity';
+import { UsersService } from '@/users/users.service';
 import { RegisterDto } from './dto/request/register.dto';
 import { TokensDto } from './dto/response/tokens.dto';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
@@ -22,7 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly authCookieService: AuthCookieService,
-  ) { }
+  ) {}
 
   async register(dto: RegisterDto, res: Response): Promise<void> {
     const user = await this.usersService.create(dto.email, dto.password);

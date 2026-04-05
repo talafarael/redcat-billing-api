@@ -1,4 +1,4 @@
-import { User } from 'src/users/entities/user.entity';
+import { User } from '@/users/entities/user.entity';
 import {
   Column,
   CreateDateColumn,
@@ -7,8 +7,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { TypeTransaction } from '../enums/type-transaction.enum';
-import { TransactionStatus } from '../enums/transaction-status.enum';
+import { TypeTransaction } from '@/transactions/enums/type-transaction.enum';
+import { TransactionStatus } from '@/transactions/enums/transaction-status.enum';
 
 @Entity('transactions')
 export class Transaction {
@@ -16,7 +16,7 @@ export class Transaction {
   id: string;
 
   @Column()
-  balance: number;
+  amount: number;
 
   @Column({ type: 'enum', enum: TypeTransaction })
   type: TypeTransaction;

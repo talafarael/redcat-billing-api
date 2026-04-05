@@ -1,11 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { Transaction } from '../entities/transaction.entity';
-import { TypeTransaction } from '../enums/type-transaction.enum';
-import { TransactionStatus } from '../enums/transaction-status.enum';
-import { CreateDepositRepositoryDto } from '../dto/repository/create-deposit.dto';
-import { CreateTransferRepositoryDto } from '../dto/repository/create-transfer.dto';
-import { PaginationQueryDto } from 'src/common/dto/request/pagination-query.dto';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import { Transaction } from '@/transactions/entities/transaction.entity';
+import { TypeTransaction } from '@/transactions/enums/type-transaction.enum';
+import { TransactionStatus } from '@/transactions/enums/transaction-status.enum';
+import { CreateDepositRepositoryDto } from '@/transactions/dto/repository/create-deposit.dto';
+import { CreateTransferRepositoryDto } from '@/transactions/dto/repository/create-transfer.dto';
+import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
 
 @Injectable()
 export class TransactionRepository extends Repository<Transaction> {
@@ -20,9 +20,13 @@ export class TransactionRepository extends Repository<Transaction> {
     });
   }
 
-  createDeposit(dto: CreateDepositRepositoryDto): Promise<Transaction> {
-    return this.save(
-      this.create({
+  createDeposit(
+    dto: CreateDepositRepositoryDto,
+    manager?: EntityManager,
+  ): Promise<Transaction> {
+    const repo = manager ? manager.getRepository(Transaction) : this;
+    return repo.save(
+      repo.create({
         ...dto,
         type: TypeTransaction.DEPOSIT,
         status: TransactionStatus.COMPLETED,
@@ -30,9 +34,13 @@ export class TransactionRepository extends Repository<Transaction> {
     );
   }
 
-  createTransfer(dto: CreateTransferRepositoryDto): Promise<Transaction> {
-    return this.save(
-      this.create({
+  createTransfer(
+    dto: CreateTransferRepositoryDto,
+    manager?: EntityManager,
+  ): Promise<Transaction> {
+    const repo = manager ? manager.getRepository(Transaction) : this;
+    return repo.save(
+      repo.create({
         ...dto,
         type: TypeTransaction.TRANSFER,
         status: TransactionStatus.COMPLETED,
@@ -40,9 +48,17 @@ export class TransactionRepository extends Repository<Transaction> {
     );
   }
 
+  saveTransaction(
+    entity: Transaction,
+    manager?: EntityManager,
+  ): Promise<Transaction> {
+    const repo = manager ? manager.getRepository(Transaction) : this;
+    return repo.save(entity);
+  }
+
   findByUserId(
     userId: string,
-    { page, limit }: PaginationQueryDto
+    { page, limit }: PaginationQueryDto,
   ): Promise<[Transaction[], number]> {
     return this.findAndCount({
       where: [{ fromUser: { id: userId } }, { toUser: { id: userId } }],
@@ -53,7 +69,10 @@ export class TransactionRepository extends Repository<Transaction> {
     });
   }
 
-  findAll({ page, limit }: PaginationQueryDto): Promise<[Transaction[], number]> {
+  findAll({
+    page,
+    limit,
+  }: PaginationQueryDto): Promise<[Transaction[], number]> {
     return this.findAndCount({
       relations: ['fromUser', 'toUser'],
       order: { createdAt: 'DESC' },

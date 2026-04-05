@@ -1,24 +1,27 @@
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { EntityManager } from 'typeorm';
 import { UserProfileResponseDto } from './dto/response/user-profile.dto';
 import { User } from './entities/user.entity';
 import { UserRepository } from './repositories/user.repository';
-import { AuthCookieService } from 'src/auth/auth-cookie.service';
+import { AuthCookieService } from '@/auth/auth-cookie.service';
+import { buildPaginatedResponse } from '@/common/utils/paginated-response';
 import { Response } from 'express';
 import { PaginatedUsersResponseDto } from './dto/response/paginated-users.dto';
-import { PaginationQueryDto } from 'src/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly authCookieService: AuthCookieService,
-  ) {}
+  ) { }
 
   findByEmail(email: string): Promise<User | null> {
     return this.userRepository.findByEmail(email);
@@ -35,8 +38,29 @@ export class UsersService {
     return user;
   }
 
-  async adjustBalance(userId: string, delta: number): Promise<void> {
-    await this.userRepository.increment({ id: userId }, 'balance', delta);
+  async adjustBalance(
+    userId: string,
+    delta: number,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const repo = manager ? manager.getRepository(User) : this.userRepository;
+    await repo.increment({ id: userId }, 'balance', delta);
+  }
+
+  async debitBalanceIfSufficient(
+    userId: string,
+    amount: number,
+    manager?: EntityManager,
+  ): Promise<void> {
+    const affected = await this.userRepository.debitBalanceAtomic(
+      userId,
+      amount,
+      manager,
+    );
+    if (affected === 0) {
+      await this.findByIdOrFail(userId);
+      throw new BadRequestException('Insufficient funds');
+    }
   }
 
   async create(email: string, password: string): Promise<User> {
@@ -75,13 +99,7 @@ export class UsersService {
     query: PaginationQueryDto,
   ): Promise<PaginatedUsersResponseDto> {
     const [data, total] = await this.userRepository.findAll(query);
-    return {
-      data,
-      total,
-      page: query.page,
-      limit: query.limit,
-      totalPages: Math.ceil(total / query.limit),
-    };
+    return buildPaginatedResponse<User>(data, total, query);
   }
 
   async blockUser(targetId: string): Promise<void> {

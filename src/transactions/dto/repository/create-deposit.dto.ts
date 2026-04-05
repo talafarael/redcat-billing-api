@@ -1,5 +1,5 @@
 export class CreateDepositRepositoryDto {
-  balance: number;
+  amount: number;
   toUser: { id: string };
   comment?: string;
 }

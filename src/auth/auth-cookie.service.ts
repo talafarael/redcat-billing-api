@@ -1,14 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { CookieOptions, Response } from 'express';
 import { TokensDto } from './dto/response/tokens.dto';
-import { COOKIE } from 'src/config/cookies';
+import { COOKIE } from '@/config/cookies';
 
 @Injectable()
 export class AuthCookieService {
+  constructor(private readonly configService: ConfigService) {}
+
   private get baseOptions(): CookieOptions {
     return {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: this.configService.get<string>('nodeEnv') === 'production',
       sameSite: 'strict',
     };
   }

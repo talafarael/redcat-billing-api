@@ -1,9 +1,9 @@
 import { DataSource } from 'typeorm';
 import { Seeder } from 'typeorm-extension';
-import { Transaction } from 'src/transactions/entities/transaction.entity';
-import { User } from 'src/users/entities/user.entity';
-import { TypeTransaction } from 'src/transactions/enums/type-transaction.enum';
-import { TransactionStatus } from 'src/transactions/enums/transaction-status.enum';
+import { Transaction } from '@/transactions/entities/transaction.entity';
+import { User } from '@/users/entities/user.entity';
+import { TypeTransaction } from '@/transactions/enums/type-transaction.enum';
+import { TransactionStatus } from '@/transactions/enums/transaction-status.enum';
 
 export default class TransactionSeeder implements Seeder {
   public async run(dataSource: DataSource): Promise<void> {
@@ -25,28 +25,26 @@ export default class TransactionSeeder implements Seeder {
     }
 
     const transactions: Partial<Transaction>[] = [
-      // Initial deposits
       {
-        balance: 5000,
+        amount: 5000,
         type: TypeTransaction.DEPOSIT,
         status: TransactionStatus.COMPLETED,
         toUser: alice,
       },
       {
-        balance: 3000,
+        amount: 3000,
         type: TypeTransaction.DEPOSIT,
         status: TransactionStatus.COMPLETED,
         toUser: bob,
       },
       {
-        balance: 1500,
+        amount: 1500,
         type: TypeTransaction.DEPOSIT,
         status: TransactionStatus.COMPLETED,
         toUser: carol,
       },
-      // Transfers between users
       {
-        balance: 500,
+        amount: 500,
         type: TypeTransaction.TRANSFER,
         status: TransactionStatus.COMPLETED,
         fromUser: alice,
@@ -54,7 +52,7 @@ export default class TransactionSeeder implements Seeder {
         comment: 'Payment for services',
       },
       {
-        balance: 200,
+        amount: 200,
         type: TypeTransaction.TRANSFER,
         status: TransactionStatus.COMPLETED,
         fromUser: bob,
@@ -62,7 +60,7 @@ export default class TransactionSeeder implements Seeder {
         comment: 'Thanks!',
       },
       {
-        balance: 100,
+        amount: 100,
         type: TypeTransaction.TRANSFER,
         status: TransactionStatus.CANCELLED,
         fromUser: carol,

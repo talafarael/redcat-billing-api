@@ -23,18 +23,18 @@ import {
   ApiUnauthorizedResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-import { RolesGuard } from 'src/auth/guards/role.guard';
-import { Roles } from 'src/auth/decorators/role.decorator';
-import { CurrentUser } from 'src/auth/decorators/current-user.decorator';
-import { Role } from 'src/users/enums/role.enum';
-import { User } from 'src/users/entities/user.entity';
+import { JwtAuthGuard } from '@/auth/guards/jwt-auth.guard';
+import { RolesGuard } from '@/auth/guards/role.guard';
+import { Roles } from '@/auth/decorators/role.decorator';
+import { CurrentUser } from '@/auth/decorators/current-user.decorator';
+import { Role } from '@/users/enums/role.enum';
+import { User } from '@/users/entities/user.entity';
 import { TransactionsService } from './transactions.service';
 import { CreateDepositDto } from './dto/request/create-deposit.dto';
 import { CreateTransferDto } from './dto/request/create-transfer.dto';
 import { TransactionResponseDto } from './dto/response/transaction.dto';
 import { PaginatedTransactionsResponseDto } from './dto/response/paginated-transactions.dto';
-import { PaginationQueryDto } from 'src/common/dto/request/pagination-query.dto';
+import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
 
 @ApiTags('transactions')
 @ApiCookieAuth()

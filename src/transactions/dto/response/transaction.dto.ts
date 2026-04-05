@@ -1,19 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { UserProfileResponseDto } from 'src/users/dto/response/user-profile.dto';
-import { TypeTransaction } from 'src/transactions/enums/type-transaction.enum';
-import { TransactionStatus } from 'src/transactions/enums/transaction-status.enum';
+import { UserProfileResponseDto } from '@/users/dto/response/user-profile.dto';
+import { TypeTransaction } from '@/transactions/enums/type-transaction.enum';
+import { TransactionStatus } from '@/transactions/enums/transaction-status.enum';
 
 export class TransactionResponseDto {
   @ApiProperty({ example: 'uuid' })
   id: string;
 
   @ApiProperty({ example: 100 })
-  balance: number;
+  amount: number;
 
   @ApiProperty({ enum: TypeTransaction, example: TypeTransaction.DEPOSIT })
   type: TypeTransaction;
 
-  @ApiProperty({ enum: TransactionStatus, example: TransactionStatus.COMPLETED })
+  @ApiProperty({
+    enum: TransactionStatus,
+    example: TransactionStatus.COMPLETED,
+  })
   status: TransactionStatus;
 
   @ApiPropertyOptional({ example: 'Top up balance' })

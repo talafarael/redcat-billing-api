@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { DataSource, Repository } from 'typeorm';
-import { User } from '../entities/user.entity';
-import { PaginationQueryDto } from 'src/common/dto/request/pagination-query.dto';
+import { DataSource, EntityManager, Repository } from 'typeorm';
+import { User } from '@/users/entities/user.entity';
+import { PaginationQueryDto } from '@/common/dto/request/pagination-query.dto';
 
 @Injectable()
 export class UserRepository extends Repository<User> {
@@ -23,5 +23,22 @@ export class UserRepository extends Repository<User> {
       skip: (page - 1) * limit,
       take: limit,
     });
+  }
+
+  async debitBalanceAtomic(
+    userId: string,
+    amount: number,
+    manager?: EntityManager,
+  ): Promise<number> {
+    const repo = manager ? manager.getRepository(User) : this;
+    const result = await repo
+      .createQueryBuilder()
+      .update(User)
+      .set({ balance: () => 'balance - :amount' })
+      .where('id = :userId', { userId })
+      .andWhere('balance >= :amount', { amount })
+      .andWhere('isActive = :active', { active: true })
+      .execute();
+    return result.affected ?? 0;
   }
 }
