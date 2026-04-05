@@ -10,6 +10,8 @@ NestJS REST API for user authentication, role-based access control, and single-c
 - **Auth:** JWT access + refresh tokens, delivered via HTTP-only cookies
 - **Docs:** Swagger (OpenAPI), enabled in **development** only
 
+[Database ERD (draw.io)](https://drive.google.com/file/d/1vWT6qKhA0_rJL8e2mIXl6CQ8vrqmsN-v/view?usp=sharing)
+
 ## Prerequisites
 
 - Node.js 22+ and npm
