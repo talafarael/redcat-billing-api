@@ -1,5 +1,3 @@
-name: redcat-billing-prod
-
 services:
   postgres:
     image: postgres:15-alpine

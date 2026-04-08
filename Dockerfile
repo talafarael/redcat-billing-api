@@ -17,7 +17,7 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 # TypeORM loads .ts migrations at startup; ts-node is required in the runtime image.
-ENV NODE_OPTIONS=--require=ts-node/register
+# ENV NODE_OPTIONS=--require=ts-node/register
 
 RUN apk add --no-cache libc6-compat
 
